@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Utku Ozan ÇANKAYA">
+    <title>My Ticket</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/metisMenu/metisMenu.min.js"></script>
+    <script src="~/Scripts/sbAdmin/sb-admin-2.min.js"></script>
+    <script src="~/Scripts/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/datatables/dataTables.responsive.js"></script>
+    <script src="~/Scripts/moment/moment.js"></script>
+    <script src="~/Scripts/dialog/bootstrap-dialog.min.js"></script>
+
+    <link href="~/Content/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="~/Content/sbAdmin/sb-admin-2.min.css" rel="stylesheet">
+    <link href="~/Content/bootstrap.css" rel="stylesheet">
+    <link href="~/Content/font-awesome/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/datatables/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="~/Content/datatables/dataTables.responsive.css" rel="stylesheet">
+    <link href="~/Content/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="~/Content/dialog/bootstrap-dialog.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/Content/font-awesome/font-awesome.min.css">
+</head>
+<body>
+    <script type="text/javascript">
+        function showErrors(errors) {
+            $('#listErrors').empty();
+            $('#divError').hide();
+            var html = "";
+            $.each(errors, function (index, value) {
+                html += '<li><span class="fa fa-warning"></span>&nbsp;&nbsp;&nbsp;' + value + '</li>';
+            });
+            $('#listErrors').append(html);
+            $('#divError').show();
+        }
+        function showPopupErrors(errors) {
+            $('.modal-body #listErrors').empty();
+            $('.modal-body #divError').hide();
+            var html = "";
+            $.each(errors, function (index, value) {
+                html += '<li><span class="fa fa-warning"></span>&nbsp;&nbsp;&nbsp;' + value + '</li>';
+            });
+            $('.modal-body #listErrors').append(html);
+            $('.modal-body #divError').show();
+        }
+        function hideAllErrors() {
+            $('#listErrors').empty();
+            $('#divError').hide();
+            $('.modal-body #listErrors').empty();
+            $('.modal-body #divError').hide();
+            $(".has-error").removeClass("has-error");
+        }
+        function LogOff() {
+            $.ajax({
+                type: "POST",
+                url: "LogOff",
+                dataType: "json",
+                success: function (data) {
+                    window.location.href = "@Url.Content("~/Account/Login")";
+                },
+                error: function (x, t, m, b) {
+                    showErrors([x.responseText]);
+                }
+            });
+        }
+    </script>
+    <style type="text/css">
+        th {
+            text-align: center;
+        }
+
+        ul#listErrors {
+            list-style-type: none;
+        }
+    </style>
+    <div id="wrapper">
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="Home/Index">My Ticket</a>
+            </div>
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a href="#" onclick="LogOff()">
+                        <i class="fa fa-power-off" title="Log off" onclick="LogOff()"></i>
+                    </a>
+                </li>
+            </ul>
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="~/Home/Index"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="~/Home/Office"><i class="fa fa-building-o fa-fw"></i> Office management</a>
+                        </li>
+                        <li>
+                            <a href="~/Home/OfficeUser"><i class="fa fa-user fa-fw"></i> User management</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-gear fa-fw"></i> Administration<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="~/Home/Administrator">Manage administrators</a>
+                                </li>
+                                <li>
+                                    <a href="~/Home/Password">Change password</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div id="page-wrapper">
+            <div id="divError" class="alert alert-danger" style="display:none;">
+                <ul id="listErrors"></ul>
+            </div>
+            @RenderBody()
+        </div>
+    </div>
+
+</body>
+</html>

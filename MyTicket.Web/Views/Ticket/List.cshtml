@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "Bildirimlerim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var tbş = $('#tblOffice').DataTable({
+            responsive: true,
+            "iDisplayLength": 25,
+            "autoWidth": true,
+            "bServerSide": true,
+            "bProcessing": true,
+            "sAjaxSource": "@Url.Content("~/Ticket/SearchTicketAjaxHandler")",
+            "sPaginationType": "full_numbers",
+            "columnDefs": [
+                {
+                    "targets": 0,
+                    "visible": false,
+                    "searchable": false
+                }
+            ],
+            "aoColumns": [
+                { "sName": "Id", "bSortable": false },
+                { "sName": "Firma" },
+                { "sName": "Ürün" },
+                { "sName": "Tarih" },
+                { "sName": "Durum" },
+                {
+                    "sName": "Detay", "bSortable": false, "sClass": "text-center", "mRender": function (data, type, row) {
+                        var url = '@Url.Action("Detail", "Ticket")';
+                        url = url + "?ticketId=" + row[0];
+                        return '<a style="width:100%" href=\"' + url + '\"><i></i>Detay</a>';
+                    }
+                }
+            ]
+        });
+    })
+</script>
+<h2 >Bildirimlerim</h2>
+<hr />
+<div class="container">
+
+    <table id="tblOffice" class="table table-bordered table-responsive">
+        <thead>
+            <tr>
+                <th >BildirmNo</th>
+                <th >Firma</th>
+                <th >Ürün</th>
+                <th>Tarih</th>
+                <th >Durum</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>     
+        </tbody>
+    </table>
+</div>
+<hr />

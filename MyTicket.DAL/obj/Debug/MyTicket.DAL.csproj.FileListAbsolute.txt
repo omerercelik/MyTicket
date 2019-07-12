@@ -1,0 +1,10 @@
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\MyTicket.DAL.exe.config
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\MyTicket.DAL.exe
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\MyTicket.DAL.pdb
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\EntityFramework.dll
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\EntityFramework.xml
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\obj\Debug\MyTicket.DAL.exe
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\obj\Debug\MyTicket.DAL.pdb
+C:\Users\ömer\documents\visual studio 2017\Projects\MyTicket\MyTicket.DAL\obj\Debug\MyTicket.DAL.csprojResolveAssemblyReference.cache

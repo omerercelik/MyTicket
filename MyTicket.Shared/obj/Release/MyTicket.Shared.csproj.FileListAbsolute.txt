@@ -1,0 +1,5 @@
+C:\Users\ömer\Documents\Visual Studio 2017\Projects\MyTicket\MyTicket.Shared\bin\Release\MyTicket.Shared.dll
+C:\Users\ömer\Documents\Visual Studio 2017\Projects\MyTicket\MyTicket.Shared\bin\Release\MyTicket.Shared.pdb
+C:\Users\ömer\Documents\Visual Studio 2017\Projects\MyTicket\MyTicket.Shared\obj\Release\MyTicket.Shared.csprojResolveAssemblyReference.cache
+C:\Users\ömer\Documents\Visual Studio 2017\Projects\MyTicket\MyTicket.Shared\obj\Release\MyTicket.Shared.dll
+C:\Users\ömer\Documents\Visual Studio 2017\Projects\MyTicket\MyTicket.Shared\obj\Release\MyTicket.Shared.pdb

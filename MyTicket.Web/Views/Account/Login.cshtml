@@ -1,0 +1,109 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet">
+    <link href="~/Content/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="~/Content/sbAdmin/sb-admin-2.min.css" rel="stylesheet">
+    <link href="~/Content/font-awesome/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/datatables/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="~/Content/datatables/dataTables.responsive.css" rel="stylesheet">
+    <link href="~/Content/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="~/Content/dialog/bootstrap-dialog.min.css" rel="stylesheet">
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/metisMenu/metisMenu.min.js"></script>
+    <script src="~/Scripts/sbAdmin/sb-admin-2.min.js"></script>
+    <script src="~/Scripts/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/datatables/dataTables.responsive.js"></script>
+    <script src="~/Scripts/moment/moment.js"></script>
+    <script src="~/Scripts/dialog/bootstrap-dialog.min.js"></script>
+    <style type="text/css">
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 15%;
+            width: 70%;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            //$("#login").click(function () {
+
+            //});
+        });
+        function TryLogin() {
+            var username = $('#txtmail').val();
+            var password = $('#txtpassword').val();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Content("~/Account/Login")",
+                dataType: "json",
+                data: {
+                    username,
+                    password
+                },
+                success: function (data) {
+                    window.location.href = "@Url.Content("~/Ticket/List")";
+                },
+                error: function (x, t, m, b) {
+                    alert(x.responseText);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container center">
+        <div class="row">
+            <div class="col-lg-4 hidden-xs"></div>
+            <div class="well well-sm col-lg-4 col-xs-12">
+                <form class="form-horizontal" action="" method="post">
+                    <fieldset>
+                        <legend class="text-center">Login</legend>
+                        <div id="validate">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-xs-4 ">
+                                    <label class="control-label" for="txtmail">E-Mail :</label>
+                                </div>
+                                <div class="col-lg-8 col-xs-8">
+                                    <input id="txtmail" name="mail" type="text" placeholder="e-mail" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-xs-4">
+                                    <label class=" control-label" for="txtpassword">Password :</label>
+                                </div>
+                                <div class="col-lg-8 col-xs-8">
+                                    <input id="txtpassword" name="password" type="password" placeholder="password" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-1 col-xs-2"></div>
+                            <div class="col-lg-5 col-xs-5 ">
+                                <a href="@Url.Action("Create", "Account")"><u>Kullanıcı Oluştur</u></a>
+                            </div>
+                            <div class="col-lg-3 col-xs-2"></div>
+                            <div class="col-lg-3 col-xs-5">
+                                <button id="login" type="button" class="btn btn-default btn-success form-control" onclick="TryLogin()">giriş</button>
+                            </div>
+                            <div class="hidden-lg col-xs-2"></div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="col-lg-4 hidden-xs"></div>
+        </div>
+    </div>
+
+</body>
+</html>

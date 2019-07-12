@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="bbee4a8a57154c89892d8b8598930088" Name="Diagram1" ZoomLevel="64">
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Company" Width="1.5" PointX="0.75" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Company_Principal" Width="1.5" PointX="8.25" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Principal" Width="1.5" PointX="3" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Principal_Product" Width="1.5" PointX="5.25" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Product" Width="1.5" PointX="3" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Role" Width="1.5" PointX="0.75" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Team" Width="1.5" PointX="5.25" PointY="7.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.Ticket" Width="1.5" PointX="8.25" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.TicketState" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="db0c08f50393a241e58194a7d000e43d75Model.TicketType" Width="1.5" PointX="6" PointY="13.25" IsExpanded="true" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Company_Principal_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Product_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Company_Principal_Principal" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Principal_Product_Principal" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Principal_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Team_Principal" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Ticket_Principal" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Ticket_Principal1" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Principal_Product_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Team_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Ticket_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Ticket_TicketState" ManuallyRouted="false" />
+        <AssociationConnector Association="db0c08f50393a241e58194a7d000e43d75Model.FK_Ticket_TicketType" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

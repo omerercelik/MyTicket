@@ -1,0 +1,581 @@
+﻿
+@{
+    ViewBag.Title = "Bildirimler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var tbş = $('#tblOffice').DataTable({
+            responsive: true,
+            "iDisplayLength": 25,
+            "autoWidth": true,
+            "bServerSide": true,
+            "bProcessing": true,
+            "sAjaxSource": "@Url.Content("~/Company/SearchTicketAjaxHandler")",
+            "sPaginationType": "full_numbers",
+            "columnDefs": [
+                {
+                    "targets": 0,
+                    "visible": false,
+                    "searchable": false
+                }
+            ],
+            "aoColumns": [
+                { "sName": "No"},
+                { "sName": "Bildiren", "bSortable": false},
+                { "sName": "Tarih"},
+                { "sName": "Tur" },
+                { "sName": "Sorumlu", "bSortable": false },
+                { "sName": "Durum" },
+                { "sName": "Bak", "bSortable": false, "sClass": "text-center", "mRender": function (data, type, row) {
+                    return '<a id="' + row[0] + '" onclick="ShowTicket('+row[0]+')" ><i class="fa fa-eye"  ></i></a>';
+                    },
+                }
+            ]
+        });
+    })
+    function ShowTicket(ticketId) {
+        $.ajax({
+            type: "GET",
+            url: "GetTicketDetail",
+            dataType: "json",
+            data: {
+                ticketId: ticketId
+            },
+            success: function (data, textStatus, xhr) {
+                var roleId = data.roleId;
+                var durum = data.durum;
+                var urunAdi = data.urunAdi;
+                var bildirim = data.bildirim;
+                var tur = data.tur;
+                var tarih = ToJavaScriptDate(data.tarih);
+                var sorumlu = data.sorumlu;
+                var dosya = data.dosya;
+                var productId = data.productId;
+                if (roleId == 4) {
+                    ShowTicketDetail(urunAdi,bildirim,dosya,tur,tarih,sorumlu,durum);
+                }
+                if (roleId == 5) {
+                    if (data.isLeader == true) {
+                        if (data.tur == "" && data.sorumlu == "" && durum != "Reddedildi")
+                            showAssignTicket(urunAdi, bildirim, dosya, tarih, durum, productId, ticketId);
+                        else
+                            ShowTicketDetail(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum);
+                    }
+                    else {
+                        if (data.durum == "Tamamlandi" || data.durum == "Reddedildi")
+                            ShowTicketDetail(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum);
+                        if (data.durum == "Bildirim Alindi")
+                            showTicketAccept(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum, ticketId);
+                        else
+                            showTicketClose(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum, ticketId);
+                    }
+                }
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+
+    }
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1]));
+        return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+    }
+    function showAssignTicket(urunAdi, bildirim, dosya, tarih, durum, productId, ticketId) {
+        $.ajax({
+            type: "POST",
+            url: "GetProductMember",
+            dataType: "json",
+            data: {
+                productId: productId
+            },
+            success: function (data) {
+                $("#txtSorumlu1").empty();
+                for (var x = 0; x < data.length; x++) {
+                    var Username = data[x].Username;
+                    var Id = data[x].Id;
+                    $("#txtSorumlu1").append($("<option></option>").val(Id).html(Username));
+                }
+                },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+        document.getElementById('txtUrunAdi1').innerHTML = urunAdi;
+        document.getElementById('txtBildirim1').name = ticketId;
+        document.getElementById('txtBildirim1').innerHTML = bildirim;
+        document.getElementById('txtTarih1').innerHTML = tarih;
+        document.getElementById('txtDurum1').innerHTML = durum;
+        $('#showAssignTicket').modal('show');
+    }
+    function TicketAcceptance() {
+        var Id = document.getElementById('txtBildirim2').name;
+        $.ajax({
+            type: "POST",
+            url: "TicketAcceptance",
+            dataType: "json",
+            data: {
+                Id: Id
+            },
+            success: function (data) {
+                var table = $('#tblOffice').DataTable();
+                table.ajax.reload();
+                alert("Başarılı");
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function TicketClose() {
+        var Id = document.getElementById('txtBildirim3').name;
+        $.ajax({
+            type: "POST",
+            url: "TicketClose",
+            dataType: "json",
+            data: {
+                Id: Id,
+            },
+            success: function (data) {
+                alert("Bildirim Kapatıldı");
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function AssignTicket() {
+        var memberId = $("#txtSorumlu1").val();
+        var typeId = $("#txtTur1").val();
+        var Id = document.getElementById('txtBildirim1').name;
+        $.ajax({
+            type: "POST",
+            url: "AssignTicket",
+            dataType: "json",
+            data: {
+                Id: Id,
+                typeId: typeId,
+                memberId: memberId
+            },
+            success: function (data) {
+                alert("Atama Başarılı");
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function RejectTicket() {
+        if (document.getElementById('txtBildirim1').name != "") {
+            var Id = document.getElementById('txtBildirim1').name;
+        }
+        else {
+            var Id = document.getElementById('txtBildirim2').name;
+        }
+        $.ajax({
+            type: "POST",
+            url: "RejectTicket",
+            dataType: "json",
+            data: {
+                Id: Id,
+            },
+            success: function (data) {
+                var table = $('#tblOffice').DataTable();
+                table.ajax.reload();
+                alert("Reddetme Başarılı");
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function ShowTicketDetail(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum) {
+        document.getElementById('txtUrunAdi').innerHTML = urunAdi;
+        document.getElementById('txtBildirim').innerHTML = bildirim;
+        document.getElementById('txtTur').innerHTML = tur;
+        document.getElementById('txtTarih').innerHTML = tarih;
+        document.getElementById('txtSorumlu').innerHTML = sorumlu;
+        document.getElementById('txtDurum').innerHTML = durum;
+        $('#ShowTicketDetail').modal('show');
+    }
+    function showTicketAccept(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum ,ticketId) {
+        document.getElementById('txtUrunAdi2').innerHTML = urunAdi;
+        document.getElementById('txtBildirim2').name = ticketId;
+        document.getElementById('txtBildirim2').innerHTML = bildirim;
+        document.getElementById('txtTur2').innerHTML = tur;
+        document.getElementById('txtTarih2').innerHTML = tarih;
+        document.getElementById('txtSorumlu2').innerHTML = sorumlu;
+        document.getElementById('txtDurum2').innerHTML = durum;
+        $('#showTicketAccept').modal('show');
+    }
+    function showTicketClose(urunAdi, bildirim, dosya, tur, tarih, sorumlu, durum, ticketId) {
+        document.getElementById('txtUrunAdi3').innerHTML = urunAdi;
+        document.getElementById('txtBildirim3').name = ticketId;
+        document.getElementById('txtBildirim3').innerHTML = bildirim;
+        document.getElementById('txtTur3').innerHTML = tur;
+        document.getElementById('txtTarih3').innerHTML = tarih;
+        document.getElementById('txtSorumlu3').innerHTML = sorumlu;
+        document.getElementById('txtDurum3').innerHTML = durum;
+        $('#ShowTicketClose').modal('show');
+    }
+</script>
+<style>
+    .dataTables_filter input {
+        width: 77%;
+        margin-top: 3%;
+    }
+</style>
+
+<h2>Bildirimler</h2>
+<hr />
+<div class="container">
+    <table id="tblOffice" class="table table-bordered table-responsive">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Bildiren</th>
+                <th>Tarih</th>
+                <th>Tür</th>
+                <th>Sorumlu</th>
+                <th>Durum</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--<tr>
+                <th class="visible-xs"><i class="fa fa-check" aria-hidden="true"></i></th>
+                <td class="hidden-xs"><a href="#">1</a></td>
+                <td class="hidden-xs"></td>
+                <td>John</td>
+                <td></td>
+                <td>John</td>
+                <td class="hidden-xs"></td>
+                <th class="hidden-xs"></th>
+                <th><a href="#"><i class="fa fa-eye" aria-hidden="true"></i></a></th>
+            </tr>
+            <tr>
+                <th class="visible-xs"><i class="fa fa-check" aria-hidden="true"></i></th>
+                <td class="hidden-xs"><a href="#">1</a></td>
+                <td class="hidden-xs"></td>
+                <td>John</td>
+                <td></td>
+                <td>John</td>
+                <td class="hidden-xs"></td>
+                <th class="hidden-xs"></th>
+                <th><a href="#"><i class="fa fa-eye" aria-hidden="true"></i></a></th>
+            </tr>
+            <tr>
+                <th class="visible-xs"><i class="fa fa-check" aria-hidden="true"></i></th>
+                <td class="hidden-xs"><a href="#">1</a></td>
+                <td class="hidden-xs"></td>
+                <td>John</td>
+                <td></td>
+                <td>John</td>
+                <td class="hidden-xs"></td>
+                <th class="hidden-xs"></th>
+                <th><a href="#"><i class="fa fa-eye" aria-hidden="true"></i></a></th>
+            </tr>
+            <tr>
+                <th class="visible-xs"><i class="fa fa-check" aria-hidden="true"></i></th>
+                <td class="hidden-xs"><a href="#">1</a></td>
+                <td class="hidden-xs"></td>
+                <td>John</td>
+                <td></td>
+                <td>John</td>
+                <td class="hidden-xs"></td>
+                <th class="hidden-xs"></th>
+                <th><a href="#"><i class="fa fa-eye" aria-hidden="true"></i></a></th>
+            </tr> -->
+        </tbody>
+    </table>
+</div>
+<hr />
+<div id="showTicketAccept" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Bildirim Detayı</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Ürün Adı :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <text id="txtUrunAdi2"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim :</label></b>
+                        </div>
+                        <div class="col-lg-9 ">
+                            <textarea id="txtBildirim2" class="form-control" rows="10" disabled></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Dosya :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <a id="txtDosya2">Dosya İndir</a>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Tür :</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtTur2"  style="width:100%"/>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim Tarihi :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtTarih2"></text>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Sorumlu:</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtSorumlu2"  style="width:100%" />
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Durum :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtDurum2"></text>
+                        </div>
+                        <div class="col-lg-6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:left;" onclick="RejectTicket()"><i class="fa fa-times-circle-o"></i> REDDET</button>
+                <button type="button" class="btn btn-success" data-dismiss="modal" style="float:right;" onclick="TicketAcceptance()"><i class="fa fa-times-circle-o"></i> İŞLEME AL</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="showAssignTicket" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Bildirim Detayı</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Ürün Adı :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <text id="txtUrunAdi1"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim :</label></b>
+                        </div>
+                        <div class="col-lg-9 ">
+                            <textarea id="txtBildirim1" class="form-control" rows="10" disabled></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Dosya :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <a id="txtDosya1">Dosya İndir</a>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Tür :</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <select id="txtTur1" class="selectpicker" style="width:100%">
+                                <option value="1">İstek</option>
+                                <option value="2">Hata</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim Tarihi :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtTarih1"></text>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Sorumlu:</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <select id="txtSorumlu1" class="selectpicker" style="width:100%"></select>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Durum :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtDurum1"></text>
+                        </div>
+                        <div class="col-lg-6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:left;" onclick="RejectTicket()"><i class="fa fa-times-circle-o"></i> REDDET</button>
+                <button type="button" class="btn btn-success" data-dismiss="modal" style="float:right;" onclick="AssignTicket()"><i class="fa fa-times-circle-o"></i> ATA</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="ShowTicketDetail" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Bildirim Detayı</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Ürün Adı :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <text id="txtUrunAdi"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim :</label></b>
+                        </div>
+                        <div class="col-lg-9 ">
+                            <textarea id="txtBildirim" class="form-control" rows="10" disabled></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Dosya :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <a id="txtDosya">Dosya İndir</a>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Tür :</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtTur"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim Tarihi :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtTarih"></text>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Sorumlu:</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtSorumlu"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Durum :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtDurum"></text>
+                        </div>
+                        <div class="col-lg-6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:right;"><i class="fa fa-times-circle-o"></i> Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="ShowTicketClose" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Bildirim Detayı</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Ürün Adı :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <text id="txtUrunAdi3"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim :</label></b>
+                        </div>
+                        <div class="col-lg-9 ">
+                            <textarea id="txtBildirim3" class="form-control" rows="10" disabled></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Dosya :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <a id="txtDosya3">Dosya İndir</a>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Tür :</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtTur3"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Bildirim Tarihi :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtTarih3"></text>
+                        </div>
+                        <div class="col-lg-2">
+                            <b><label class="control-label">Sorumlu:</label></b>
+                        </div>
+                        <div class="col-lg-4">
+                            <text id="txtSorumlu3"></text>
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Durum :</label></b>
+                        </div>
+                        <div class="col-lg-3">
+                            <text id="txtDurum3"></text>
+                        </div>
+                        <div class="col-lg-6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" style="float:right;" onclick="TicketClose()"><i class="fa fa-times-circle-o" ></i> Tamamlandı</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:left;"><i class="fa fa-times-circle-o"></i> Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>

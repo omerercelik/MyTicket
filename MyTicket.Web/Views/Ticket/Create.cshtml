@@ -1,0 +1,99 @@
+﻿
+@{
+    ViewBag.Title = "Bildirim girişi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $('#cmbCompany').change(function () {
+            $("#cmbProduct").empty();
+            GetCompanyProducts();
+        });
+        $('#cmbCompany').ready(function () {
+            GetCompanyProducts();
+        });
+    })
+        function GetCompanyProducts() {
+            var companyId = $('#cmbCompany').val();
+            $.ajax({
+                type: "POST",
+                //url: "GetProductList",
+                url: "@Url.Content("~/Ticket/GetProductList")",
+                dataType: "json",
+                data: {
+                    companyId: companyId
+                },
+                success: function (data) {
+                    $("#cmbProduct").empty;
+                    $.each(data, function () {
+                        $("#cmbProduct").append($("<option></option>").val(this['Id']).html(this['Name']));
+                    });
+                },
+                 error: function (x, t, m, b) {
+                    alert(x.responseText);
+                }
+            });
+        }
+    function BildirimEkle() {
+        var productId = $('#cmbProduct').val();
+        var text = $('#text').val();
+        var fileInfo;
+        //alert(id);
+        $.ajax({
+            type: "POST",
+            url: "CreateTicket",
+            dataType: "json",
+            data: {
+                productId : productId,
+                text: text,
+                fileInfo: fileInfo
+            },
+            success: function (data) {
+                alert("Bildirim Başarıyla Eklendi");
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+</script>
+
+<h2>Bildirim girişi</h2>
+<hr />
+<div class="container">
+    <div class="row ">
+            <div class="col-lg-2 col-xs-4">
+                <label>ŞİRKET ADI:</label>
+            </div>
+            <div class="col-lg-3 col-xs-8">
+                @Html.DropDownList("cmbCompany", new SelectList(ViewBag.AllCompanies, "Id", "Name"))
+            </div>
+        <div  class="col-lg-2  hidden-xs"></div>
+            <div style="margin-top:7%" class="hidden-lg  col-xs-12">
+            </div>
+            <div class="col-lg-2 col-xs-4">
+                <label>ÜRÜN ADI :</label>
+            </div>
+            <div class="col-lg-3 col-xs-8">
+                <select id="cmbProduct"></select>
+            </div>
+        </div>
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <label>BİLDİRİM :</label>
+        </div>
+        <div class="col-lg-10 col-xs-8">
+            <textarea id="text" class="form-control" rows="10"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <label>DOSYA EKLE :</label>
+        </div>
+        <div class="col-lg-8 col-xs-8">
+        </div>
+        <div class="col-lg-2 col-xs-12">
+            <button class="btn-default form-control" onclick="BildirimEkle()"> GÖNDER</button>
+        </div>
+    </div>
+</div>

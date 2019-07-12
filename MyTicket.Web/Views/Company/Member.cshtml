@@ -1,0 +1,345 @@
+﻿
+@{
+    ViewBag.Title = "Üye listesi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model MyTicket.Web.Models.mevcutUye
+<script type="text/javascript">
+    $(document).ready(function () {
+        var tbş = $('#tblOffice').DataTable({
+            responsive: true,
+            "iDisplayLength": 25,
+            "autoWidth": true,
+            "bServerSide": true,
+            "bProcessing": true,
+            "sAjaxSource": "@Url.Content("~/Company/SearchMemberAjaxHandler")",
+            "sPaginationType": "full_numbers",
+            "fnDrawCallback": function (oSettings) {
+                GetTeamLeader();
+            },
+            "fnServerData": function (sSource, aoData, fnCallback) {
+                aoData.push({ "name": "productId", "value": $('#cmbProduct').val() });
+                $.getJSON(sSource, aoData, function (json) {
+                    fnCallback(json)
+                });
+            },
+            "columnDefs": [
+                {
+                    "targets": 0,
+                    "visible": false
+                }
+            ],
+            "aoColumns": [
+                { "sName": "Id", "bSortable": false },
+                { "sName": "Uye" },
+                {
+                    "sName": "Sil", "bSortable": false, "sClass": "text-center", "mRender": function (data, type, row) {
+                        return '<button title="Delete" type="button" class="btn btn-danger btn-circle btn-xs" onclick="DeleteMember(' + row[0] + ')"><i class="fa fa-minus"></i></button>';
+                    }
+                },
+                {
+                    "sName": "Ata", "bSortable": false, "sClass": "text-center", "mRender": function (data, type, row) {
+                        return '<a id="'+row[0]+'" class="goster" style="width:100%" onclick="AssignMember(' + row[0] + ')"><i></i><span class="hidden-xs">Sorumlu</span> Ata</a>';
+                    }
+                }
+            ],
+         });
+
+        $('#cmbProduct').change(function () {
+            var table = $('#tblOffice').DataTable();
+            table.ajax.reload();
+        });
+        $('#cmbProduct').ready(function () {
+            var table = $('#tblOffice').DataTable();
+            table.ajax.reload();
+        });
+        
+    })
+    function GetTeamLeader() {
+        var productId = $('#cmbProduct').val();
+        $.ajax({
+            type: "GET",
+            url: "GetTeamLeader",
+            dataType: "json",
+            data: {
+                productId: productId
+            },
+            success: function (data, textStatus, xhr) {
+                if (data.userId != null) {
+                    var id = data.userId;
+                    document.getElementById(id).style.display = 'none';
+                }
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+
+    }
+    function GetExistingMembersForProduct() {
+        var productId = $('#cmbProduct').val();
+        $.ajax({
+            type: "POST",
+            url: "GetExistingMembersForProduct",
+            dataType: "json",
+            data: {
+                productId: productId
+            },
+            success: function (data) {
+
+                //$($.parseJSON(data)).map(function () {
+                //    return $('<option>').val(this.Id).text(this.Name);
+                //}).appendTo('#cmbProduct');
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function YeniUyeEkle() {
+        var productId = $('#cmbProduct').val();
+        var username = $('#txtEPosta').val();
+        var password = $('#txtParola').val();
+        $.ajax({
+            type: "POST",
+            url: "CreateMemberAndAssignToToProduct",
+            dataType: "json",
+            data: {
+                productId: productId,
+                username: username,
+                password: password
+            },
+            success: function (data) {
+                var table = $('#tblOffice').DataTable();
+                table.ajax.reload();
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+     function MevcutUyeEkle(a) {
+         var productId = $('#cmbProduct').val();
+         var userId = a.name;
+        $.ajax({
+            type: "POST",
+            url: "AssignExistingMemberToProduct",
+            dataType: "json",
+            data: {
+                userId: userId,
+                productId: productId
+            },
+            success: function (data) {
+                var table = $('#tblOffice').DataTable();
+                table.ajax.reload();
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function DeleteMember(userId) {
+        var productId = $('#cmbProduct').val();
+        $.ajax({
+            type: "POST",
+            url: "RemoveMemberFromProduct",
+            dataType: "json",
+            data: {
+                userId: userId,
+                productId: productId
+            },
+            success: function (data) {
+                var table = $('#tblOffice').DataTable();
+                table.ajax.reload();
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+     }
+    function AssignMember(userId) {
+        var productId = $('#cmbProduct').val();
+        $.ajax({
+            type: "POST",
+            url: "AssignMemberAsLead",
+            dataType: "json",
+            data: {
+                userId: userId,
+                productId: productId
+            },
+            success: function (data) {
+                var elements = document.getElementsByClassName("goster");
+                for (var i = 0, length = elements.length; i < length; i++) {
+                    if (elements[i].style.display == 'none') {
+                        elements[i].style.display = 'block';
+                    }
+                }
+                document.getElementById(''+userId+'').style.display = 'none';
+            },
+            error: function (x, t, m, b) {
+                alert(x.responseText);
+            }
+        });
+    }
+    function ShowNewMember() {
+        $('#txtEPosta').val('');
+        $('#txtParola').val('');
+        $('#popupNewMember').modal('show');
+    }
+    function ShowExistingMember() {
+        $('#popupExistingMember').modal('show');
+    }
+
+</script>
+<style>
+    .dataTables_filter input {
+        width: 77%;
+        margin-top: 3%;
+    }
+</style>
+<h2>ÜYE LİSTESİ</h2>
+<hr />
+<div class="container">
+    <div class="form-group">
+        <div class="col-lg-1 col-xs-4" style="padding-left:0">
+            <label style="font-weight:normal" class="control-label">ÜRÜN ADI :</label>
+        </div>
+        <div class="col-lg-6 col-xs-8">
+            @Html.DropDownList("cmbProduct", new SelectList(ViewBag.AllProducts, "Id", "Name"))
+        </div>
+        <div class="col-lg-3 col-xs-12">
+            <button class="btn-default form-control " style="width:100%" onclick="ShowExistingMember()"><i class="fa fa-plus-circle" aria-hidden="true"></i> MEVCUT ÜYELERDEN EKLE</button>
+        </div>
+        <div style="padding-right:0" class="col-lg-2 col-xs-12">
+            <button class="btn-default form-control" style="width:100%" onclick="ShowNewMember()"><i class="fa fa-plus-circle" aria-hidden="true"></i> YENİ ÜYE</button>
+        </div>
+    </div>
+    <table id="tblOffice" class="table table-bordered table-responsive ">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Üye</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--<tr>
+                    <td>John</td>
+                    <td>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                            </label>
+                        </div>
+                    </td>
+                    <th><a href="#"><i class="fa fa-times" style="color:red"></i></a></th>
+                    <th><a href="#" style="width:100%"><i></i><span class="hidden-xs">Sorumlu</span> Ata</a></th>
+                </tr>
+                <tr>
+                    <td>Mary</td>
+                    <td>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                            </label>
+                        </div>
+                    </td>
+                    <th><a href="#"><i class="fa fa-times" style="color:red"></i></a></th>
+                    <th><a href="#" style="width:100%"><i></i><span class="hidden-xs">Sorumlu</span> Ata</a></th>
+                </tr>
+                <tr>
+                    <td>July</td>
+                    <td>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                            </label>
+                        </div>
+                    </td>
+                    <th><a href="#"><i class="fa fa-times" style="color:red"></i></a></th>
+                    <th><a href="#" style="width:100%"><i></i><span class="hidden-xs">Sorumlu</span> Ata</a></th>
+                </tr>
+                <tr>
+                    <td>July</td>
+                    <td>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                            </label>
+                        </div>
+                    </td>
+                    <th><a href="#"><i class="fa fa-times"style="color:red"></i></a></th>
+                    <th><a href="#" style="width:100%"><i></i><span class="hidden-xs">Sorumlu</span> Ata</a></th>
+                </tr>
+            -->
+        </tbody>
+    </table>
+</div>
+<div id="popupNewMember" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Yeni Üye</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">E-posta :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <input id="txtEPosta" class="form-control" />
+                        </div>
+                    </div>
+                    <div style="margin-top:2%" class="row">
+                        <div class="col-lg-3 required">
+                            <b><label class="control-label">Parola :</label></b>
+                        </div>
+                        <div class="col-lg-9">
+                            <input id="txtParola" type="password" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:left;"><i class="fa fa-times-circle-o"></i> İPTAL</button>
+                    <button id="yarat" type="button" class="btn btn-success" onclick="YeniUyeEkle()"><i class="fa fa-check-circle-o"></i> YARAT&EKLE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popupExistingMember" class="modal fade" tabindex="-1" role="dialog" style="display:none" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Mevcut Üyelerden Ekle</b></h5>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <table id="#tbleOffice" class="table table-bordered table-responsive ">
+                        <thead>
+                            <tr>
+                                <th>Hesap Adı</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var uyeler in Model.mevcutUyeler)
+                            {
+                                <tr>
+                                    <th>@uyeler.username</th>
+                                    <th><a name="@uyeler.Id" onclick="MevcutUyeEkle(this)">Ekle</a></th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" style="float:left;"><i class="fa fa-times-circle-o"></i> İPTAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

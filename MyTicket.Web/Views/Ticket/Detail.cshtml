@@ -1,0 +1,64 @@
+﻿@model MyTicket.Web.Models.KullaniciBildirimDetayModel
+@{
+    ViewBag.Title = "Bildirim izleme";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Bildirim izleme</h2>
+<hr />
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <text>ŞİRKET ADI:</text>
+        </div>
+       
+        <div class="col-lg-3 col-xs-8">
+            <text>@Model.firma</text>
+        </div>
+        <div class="col-lg-2  hidden-xs">
+        </div>
+        <div style="margin-top:7%" class="col-xs-12  hidden-lg">
+        </div>
+        <div class="col-lg-2 col-xs-4">
+            <text>ÜRÜN ADI :</text>
+        </div>
+        <div class="col-lg-3 col-xs-8">
+            <text>@Model.urun</text>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <text>BİLDİRİ :</text>
+        </div>
+        <div class="col-lg-10 col-xs-8">
+            <textarea class="form-control" rows="10" disabled>@Model.bildirim</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <text>DOSYA :</text>
+        </div>
+        <div class="col-lg-2 col-xs-4">
+            <a href="#"><u>Dosya İndir</u></a>
+        </div>
+        <div class="col-lg-8 col-xs-4">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 col-xs-4">
+            <text>BİLDİRİM TARİHİ : </text>
+        </div>
+        <div class="col-lg-2 col-xs-8">
+            <text> @Model.tarih</text>
+        </div>
+        <div class="col-lg-4 hidden-xs ">
+        </div>
+        <div class="col-lg-2 col-xs-4">
+            <text>Bildirim Durumu : </text>
+        </div>
+        <div class="col-lg-2 col-xs-8">
+            <text>@Model.Durum</text>
+        </div>
+    </div>
+</div>
+    
